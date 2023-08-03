@@ -11,7 +11,7 @@ router.get('/', isAuthenticated, (req, res, next) => {
     const cartId = req.use.cart
 
     Cart.findById(cartId)
-        .populate('socks')
+        .populate('items')
         .then((foundCart) => {
             if(!foundCart) {
                 return res.json({message: 'Your cart is empty'})
@@ -27,7 +27,7 @@ router.get('/', isAuthenticated, (req, res, next) => {
 
 router.post('/create', isAuthenticated, (req, res, next) => {
 
-    const { sockId, subtotal, total } = req.body
+    const { itemId, subtotal, total } = req.body
 
     // const today = new Date()
     // let expiry = today.setDate(today.getDate() + 1)
@@ -37,7 +37,7 @@ router.post('/create', isAuthenticated, (req, res, next) => {
         subtotal, 
         total,
         // timeLeft: expiry,
-        $push: {socks: sockId}
+        $push: {items: itemId}
     })
         .then((createdCart) => {
             res.json(createdCart)
@@ -51,7 +51,7 @@ router.post('/create', isAuthenticated, (req, res, next) => {
 
 router.post('/update', isAuthenticated, (req, res, next) => {
 
-    const { sockId, subtotal, total } = req.body
+    const { itemId, subtotal, total } = req.body
 
     const cartId = req.user.cart
     
@@ -60,11 +60,11 @@ router.post('/update', isAuthenticated, (req, res, next) => {
         {
             subtotal, 
             total,
-            $push: {socks: sockId}
+            $push: {items: itemId}
         },
         { return: true }
     )
-        .populate('socks')
+        .populate('items')
         .then((updatedCart) => {
             res.json(updatedCart)
         })
@@ -75,19 +75,19 @@ router.post('/update', isAuthenticated, (req, res, next) => {
 
 })
 
-router.post('/remove-sock/:sockId', isAuthenticated, (req, res, next) => {
+router.post('/remove-item/:itemId', isAuthenticated, (req, res, next) => {
 
     const cartId = req.user.cart
-    const { sockId } = req.params
+    const { itemId } = req.params
 
     Cart.findByIdAndUpdate(
         cartId,
         {
-            $pull: {socks: sockId}
+            $pull: {items: itemId}
         },
         { new: true }
     )
-        .populate('socks')
+        .populate('items')
         .then((updatedCart) => {
             res.json(updatedCart)
         })

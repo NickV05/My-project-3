@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const sockSchema = new Schema(
+const itemSchema = new Schema(
     {
         owner: {type: Schema.Types.ObjectId, ref: 'User'},
         cost: {
@@ -8,9 +8,7 @@ const sockSchema = new Schema(
             default: 0
         },
         image: String,
-        story: String,
-        size: String,
-        material: String,
+        description: String,
         colorPattern: String,
         comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}]
     },
@@ -19,4 +17,4 @@ const sockSchema = new Schema(
     }
 )
 
-module.exports = model('Sock', sockSchema)
+module.exports = model('Item', itemSchema)

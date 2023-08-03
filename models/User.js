@@ -13,7 +13,7 @@ const userSchema = new Schema(
     location: String,
     username: String,
     cart: {type: Schema.Types.ObjectId, ref: 'Cart'},
-    listedSocks: [{type: Schema.Types.ObjectId, ref: 'Sock'}]
+    listedItems: [{type: Schema.Types.ObjectId, ref: 'Item'}]
     },
     {
         timeseries: true

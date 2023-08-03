@@ -1,17 +1,17 @@
 var express = require('express');
 var router = express.Router();
 
-const Sock = require('../models/Sock');
+const Item = require('../models/Item');
 const Comment = require('../models/Comment')
 
 const isAuthenticated = require('../middleware/isAuthenticated');
-const isSockOwner = require('../middleware/isSockOwner')
+const isItemOwner = require('../middleware/isItemOwner')
 
 router.get('/', (req, res, next) => {
   
-    Sock.find()
-        .then((allSocks) => {
-            res.json(allSocks)
+    Item.find()
+        .then((allItems) => {
+            res.json(allItems)
         })
         .catch((err) => {
             console.log(err)
@@ -20,23 +20,20 @@ router.get('/', (req, res, next) => {
 
 });
 
-router.post('/new-sock', isAuthenticated, (req, res, next) => {
+router.post('/new-item', isAuthenticated, (req, res, next) => {
 
-    const { owner, cost, image, story, size, material, colorPattern } = req.body
+    const { owner, cost, image, colorPattern } = req.body
 
-    Sock.create(
+    Item.create(
         { 
             owner, 
             cost, 
             image, 
-            story, 
-            size, 
-            material, 
             colorPattern 
         }
         )
-        .then((newSock) => {
-            res.json(newSock)
+        .then((newItem) => {
+            res.json(newItem)
         })
         .catch((err) => {
             console.log(err)
@@ -45,17 +42,17 @@ router.post('/new-sock', isAuthenticated, (req, res, next) => {
 
 })
 
-router.get('/sock-detail/:sockId', (req, res, next) => {
+router.get('/item-detail/:itemId', (req, res, next) => {
 
-    const { sockId } = req.params
+    const { itemId } = req.params
 
-    Sock.findById(sockId)
+    Item.findById(itemId)
         .populate({
             path: 'comments',
             populate: { path: 'author'}
         })
-        .then((foundSock) => {
-            res.json(foundSock)
+        .then((foundItem) => {
+            res.json(foundItem)
         })
         .catch((err) => {
             console.log(err)
@@ -64,26 +61,23 @@ router.get('/sock-detail/:sockId', (req, res, next) => {
 
 })
 
-router.post('/sock-update/:sockId', isAuthenticated, isSockOwner, (req, res, next) => {
+router.post('/item-update/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
 
     const { sockId } = req.params
 
-    const { cost, image, story, size, material, colorPattern } = req.body
+    const { cost, image, colorPattern } = req.body
 
-    Sock.findByIdAndUpdate(
-        sockId,
+    Item.findByIdAndUpdate(
+        itemId,
         {
             cost, 
-            image, 
-            story, 
-            size, 
-            material, 
+            image,  
             colorPattern 
         },
         { new: true}
     )
-        .then((updatedSock) => {
-            res.json(updatedSock)
+        .then((updatedItem) => {
+            res.json(updatedItem)
         })
         .catch((err) => {
             console.log(err)
@@ -92,13 +86,13 @@ router.post('/sock-update/:sockId', isAuthenticated, isSockOwner, (req, res, nex
 
 })
 
-router.post('/delete-sock/:sockId', isAuthenticated, isSockOwner, (req, res, next) => {
+router.post('/delete-item/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
 
-    const { sockId } = req.params
+    const { itemId } = req.params
 
-    Sock.findByIdAndDelete(sockId)
-        .then((deletedSock) => {
-            res.json(deletedSock)
+    Item.findByIdAndDelete(itemId)
+        .then((deletedItem) => {
+            res.json(deletedItem)
         })
         .catch((err) => {
             console.log(err)
@@ -107,7 +101,7 @@ router.post('/delete-sock/:sockId', isAuthenticated, isSockOwner, (req, res, nex
 
 })
 
-router.post('/add-comment/:sockId', isAuthenticated, (req, res, next) => {
+router.post('/add-comment/:itemId', isAuthenticated, (req, res, next) => {
 
     Comment.create({
         author: req.user._id,
@@ -115,7 +109,7 @@ router.post('/add-comment/:sockId', isAuthenticated, (req, res, next) => {
     })
         .then((createdComment) => {
 
-            Sock.findByIdAndUpdate(
+            Item.findByIdAndUpdate(
                 req.params.sockId,
                 {
                     $push: {comments: createdComment._id}
@@ -125,8 +119,8 @@ router.post('/add-comment/:sockId', isAuthenticated, (req, res, next) => {
                 path: 'comments',
                 populate: { path: 'author'}
             })
-            .then((updatedSock) => {
-                res.json(updatedSock)
+            .then((updatedItem) => {
+                res.json(updatedItem)
             })
             .catch((err) => {
                 console.log(err)

@@ -9,7 +9,7 @@ var cors = require('cors')
 
 var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
-var socksRouter = require('./routes/socks');
+var itemsRouter = require('./routes/items');
 var cartRouter = require('./routes/cart')
 
 var app = express();
@@ -36,7 +36,7 @@ app.use(
 
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
-app.use('/socks', socksRouter);
+app.use('/items', itemsRouter);
 app.use('/cart', cartRouter)
 
 mongoose
