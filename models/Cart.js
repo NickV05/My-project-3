@@ -16,11 +16,11 @@ const cartSchema = new Schema(
             default: 0
         },
         owner: {type: Schema.Types.ObjectId, ref: 'User'},
-        // timeLeft: Date
+        expireAt: { type: Date, expires: '500m', default: Date.now }
     },
     {
-        // timeseries: true,
-        createdAt: { type: Date, expires: '2m', default: Date.now }
+        timestamps:true
+       
     }
 )
 

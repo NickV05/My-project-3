@@ -63,7 +63,7 @@ router.get('/item-detail/:itemId', (req, res, next) => {
 
 router.post('/item-update/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
 
-    const { sockId } = req.params
+    const { itemId } = req.params
 
     const { cost, image, colorPattern } = req.body
 

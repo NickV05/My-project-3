@@ -11,6 +11,7 @@ var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
 var itemsRouter = require('./routes/items');
 var cartRouter = require('./routes/cart')
+var stripeRouter = require('./routes/stripe')
 
 var app = express();
 
@@ -26,18 +27,15 @@ app.enable('trust proxy');
 
 app.use(
     cors({
-      origin: [process.env.REACT_APP_URI]  // <== URL of our future React app
+      origin: [process.env.CLIENT_URI]  
     })
   );
-
-// app.use(
-//     cors()
-//   );
 
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/items', itemsRouter);
 app.use('/cart', cartRouter)
+app.use('/stripe', stripeRouter)
 
 mongoose
   .connect(process.env.MONGODB_URI)
