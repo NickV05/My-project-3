@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')('sk_test_51Nb4keLFXKcLMJWWGVNknv8bfUFb3T6hDJnTb9LZNdmVscIqohAmAM0WGyn5ni9NortMtZbbK2PnM1V4UKizz7wY004EMjo1hs');
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 const Cart = require('../models/Cart');
 const isAuthenticated = require('../middleware/isAuthenticated');
 
