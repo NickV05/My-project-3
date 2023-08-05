@@ -8,28 +8,31 @@ const isAuthenticated = require('../middleware/isAuthenticated');
 const isItemOwner = require('../middleware/isItemOwner')
 
 router.get('/', (req, res, next) => {
-  
+
     Item.find()
-        .then((allItems) => {
-            res.json(allItems)
-        })
-        .catch((err) => {
-            console.log(err)
-            next(err)
-        })
+    .populate('owner')
+    .then((allItems) => {
+        console.log("Populated owners:",allItems)
+        res.json(allItems)
+    })
+    .catch((err) => {
+        console.log(err)
+        next(err)
+    })
 
 });
 
 router.post('/new-item', isAuthenticated, (req, res, next) => {
 
-    const { owner, cost, image, colorPattern } = req.body
+    const {cost, description, name } = req.body
+
 
     Item.create(
         { 
-            owner, 
+            owner:req.user._id, 
             cost, 
-            image, 
-            colorPattern 
+            description,
+            name
         }
         )
         .then((newItem) => {
@@ -61,18 +64,18 @@ router.get('/item-detail/:itemId', (req, res, next) => {
 
 })
 
-router.post('/item-update/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
+router.post('/item-update/:itemId', isAuthenticated, (req, res, next) => {
 
     const { itemId } = req.params
 
-    const { cost, image, colorPattern } = req.body
+    const { cost, description, name } = req.body
 
     Item.findByIdAndUpdate(
         itemId,
         {
             cost, 
-            image,  
-            colorPattern 
+            description,
+            name  
         },
         { new: true}
     )
@@ -86,7 +89,7 @@ router.post('/item-update/:itemId', isAuthenticated, isItemOwner, (req, res, nex
 
 })
 
-router.post('/delete-item/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
+router.post('/delete-item/:itemId', isAuthenticated, (req, res, next) => {
 
     const { itemId } = req.params
 

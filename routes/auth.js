@@ -25,12 +25,11 @@ router.post("/signup", (req, res, next) => {
     return;
   }
 
-  // Use regex to validate the password format
-  // const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
-  // if (!passwordRegex.test(password)) {
-  //   res.status(400).json({ message: 'Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.' });
-  //   return;
-  // }
+  const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+  if (!passwordRegex.test(password)) {
+    res.status(400).json({ message: 'Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.' });
+    return;
+  }
 
 
   User.findOne({ email })
@@ -95,7 +94,7 @@ router.post("/login", (req, res, next) => {
 
         const authToken = jwt.sign(payload, process.env.SECRET, {
           algorithm: "HS256",
-          expiresIn: "4h",
+          expiresIn: "6h",
         });
 
         res.status(200).json({ authToken });

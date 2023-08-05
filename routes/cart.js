@@ -10,16 +10,17 @@ router.get("/", isAuthenticated, (req, res, next) => {
 
   Cart.findById(cartId)
     .populate("items")
-    .then((foundCart) => {
-      if (!foundCart) {
-        return res.json({ message: "Your cart is empty" });
-      }
-      res.json(foundCart);
-    })
-    .catch((err) => {
-      console.log(err);
-      next(err);
-    });
+        .then((foundItems) => {
+          if (!foundItems) {
+            return res.json({ message: "Your cart is empty" });
+          }
+          console.log("found:", foundItems)
+          res.json(foundItems);
+        })
+        .catch((err) => {
+          console.log(err);
+          next(err);
+        });
 });
 
 router.post("/create", isAuthenticated, (req, res, next) => {

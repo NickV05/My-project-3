@@ -3,13 +3,10 @@ const { Schema, model } = require('mongoose');
 const itemSchema = new Schema(
     {
         owner: {type: Schema.Types.ObjectId, ref: 'User'},
-        cost: {
-            type: Number,
-            default: 0
-        },
+        cost:String,
+        name:String,
         image: String,
         description: String,
-        colorPattern: String,
         comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}]
     },
     {
