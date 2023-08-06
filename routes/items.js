@@ -50,17 +50,19 @@ router.get('/item-detail/:itemId', (req, res, next) => {
     const { itemId } = req.params
 
     Item.findById(itemId)
-        .populate({
-            path: 'comments',
-            populate: { path: 'author'}
-        })
-        .then((foundItem) => {
-            res.json(foundItem)
-        })
-        .catch((err) => {
-            console.log(err)
-            next(err)
-        })
+    .populate({
+        path: 'comments',
+        populate: { path: 'author'}
+    })
+    .populate('owner') 
+    .then((populatedItem) => {
+        console.log("PopulatedItem:", populatedItem)
+        res.json(populatedItem)
+    })
+    .catch((err) => {
+        console.log(err)
+        next(err)
+    })
 
 })
 
@@ -111,31 +113,31 @@ router.post('/add-comment/:itemId', isAuthenticated, (req, res, next) => {
         comment: req.body.comment
     })
         .then((createdComment) => {
-
+            console.log("Created comment:", createdComment);
             Item.findByIdAndUpdate(
-                req.params.sockId,
+                req.params.itemId, // Corrected parameter name
                 {
-                    $push: {comments: createdComment._id}
-                }
+                    $push: { comments: createdComment._id }
+                },
+                { new: true } // Return the updated document
             )
             .populate({
                 path: 'comments',
-                populate: { path: 'author'}
+                populate: { path: 'author' }
             })
             .then((updatedItem) => {
-                res.json(updatedItem)
+                console.log("Updated item:", updatedItem);
+                res.json(updatedItem);
             })
             .catch((err) => {
-                console.log(err)
-                next(err)
-            })
-
+                console.log(err);
+                next(err);
+            });
         })
         .catch((err) => {
-            console.log(err)
-            next(err)
-        })
-
-})
+            console.log(err);
+            next(err);
+        });
+});
 
 module.exports = router;
