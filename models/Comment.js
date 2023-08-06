@@ -3,7 +3,8 @@ const { Schema, model } = require('mongoose');
 const commentSchema = new Schema(
     {
         author: {type: Schema.Types.ObjectId, ref: 'User'},
-        comment: String
+        comment: String,
+        item:{type: Schema.Types.ObjectId, ref: 'Item'}
     },
     {
         timeseries: true

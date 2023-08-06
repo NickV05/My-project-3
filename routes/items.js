@@ -108,18 +108,20 @@ router.post('/delete-item/:itemId', isAuthenticated, (req, res, next) => {
 
 router.post('/add-comment/:itemId', isAuthenticated, (req, res, next) => {
 
+    const { itemId } = req.params
     Comment.create({
         author: req.user._id,
-        comment: req.body.comment
+        comment: req.body.comment,
+        item:itemId
     })
         .then((createdComment) => {
             console.log("Created comment:", createdComment);
             Item.findByIdAndUpdate(
-                req.params.itemId, // Corrected parameter name
+                req.params.itemId, 
                 {
                     $push: { comments: createdComment._id }
                 },
-                { new: true } // Return the updated document
+                { new: true } 
             )
             .populate({
                 path: 'comments',
@@ -138,6 +140,33 @@ router.post('/add-comment/:itemId', isAuthenticated, (req, res, next) => {
             console.log(err);
             next(err);
         });
+});
+
+router.post('/delete-review/:reviewId', isAuthenticated, (req, res, next) => {
+
+    const { reviewId } = req.params;
+
+    Comment.findById(reviewId)
+        .populate("item")
+        .then((populatedReview) => {
+            console.log("Populated review:", populatedReview);
+            return Item.findByIdAndUpdate(
+                populatedReview.item._id,
+                {
+                    $pull: { comments: reviewId },
+                },
+                { new: true }
+            );
+        })
+        .then((updatedItem) => {
+            console.log("Updated item:", updatedItem);
+            res.redirect(`/items/item-detail/${updatedItem._id}`);
+        })
+        .catch((err) => {
+            console.log(err);
+            next(err);
+        });
+
 });
 
 module.exports = router;
