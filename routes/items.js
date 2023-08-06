@@ -169,4 +169,27 @@ router.post('/delete-review/:reviewId', isAuthenticated, (req, res, next) => {
 
 });
 
+router.post('/review-update/:reviewId', isAuthenticated, (req, res, next) => {
+
+    const { reviewId } = req.params
+
+    const { comment } = req.body
+
+   Comment.findByIdAndUpdate(
+        reviewId,
+        {
+            comment  
+        },
+        { new: true}
+    )
+        .then((updatedReview) => {
+            res.json(updatedReview)
+        })
+        .catch((err) => {
+            console.log(err)
+            next(err)
+        })
+
+})
+
 module.exports = router;
