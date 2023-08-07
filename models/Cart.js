@@ -16,7 +16,6 @@ const cartSchema = new Schema(
             default: 0
         },
         owner: {type: Schema.Types.ObjectId, ref: 'User'},
-        expireAt: { type: Date, expires: '500m', default: Date.now }
     },
     {
         timestamps:true

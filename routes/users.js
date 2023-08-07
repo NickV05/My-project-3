@@ -10,9 +10,12 @@ router.get('/user-detail/:userId', (req, res, next) => {
   const { userId } = req.params
 
   User.findById(userId)
+  .populate('listedItems') 
     .then((foundUser) => {
+      console.log("FoundUser:", foundUser)
       res.json(foundUser)
     })
+    
     .catch((err) => {
       console.log(err)
       next(err)

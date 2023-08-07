@@ -2,10 +2,11 @@
 const Item = require('../models/Item');
 
 const isItemOwner = (req, res, next) => {
-
-    Item.findById(req.params.id)
+console.log("Req.body", req.body)
+console.log("Req.user", req.user)
+    Item.findById(req.params.itemId)
         .then((foundItem) => {
-            if (req.body.owner === foundItem.owner.toString()) {
+            if (req.user._id === foundItem.owner.toString()) {
                 next()
             } else {
                 res.status(401).json({message: "Validation Error"})

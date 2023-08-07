@@ -3,6 +3,7 @@ var router = express.Router();
 
 const Item = require('../models/Item');
 const Comment = require('../models/Comment')
+const User = require('../models/User')
 
 const isAuthenticated = require('../middleware/isAuthenticated');
 const isItemOwner = require('../middleware/isItemOwner')
@@ -22,28 +23,34 @@ router.get('/', (req, res, next) => {
 
 });
 
-router.post('/new-item', isAuthenticated, (req, res, next) => {
+router.post('/new-item', isAuthenticated, async (req, res, next) => {
+    try {
+        const { cost, description, name } = req.body;
 
-    const {cost, description, name } = req.body
-
-
-    Item.create(
-        { 
-            owner:req.user._id, 
-            cost, 
+        const createdItem = await Item.create({
+            owner: req.user._id,
+            cost,
             description,
             name
-        }
-        )
-        .then((newItem) => {
-            res.json(newItem)
-        })
-        .catch((err) => {
-            console.log(err)
-            next(err)
-        })
+        });
 
-})
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $push: { listedItems: createdItem._id }
+            },
+            { new: true }
+        );
+
+        console.log("Created Item:", createdItem);
+        console.log("Updated user:", updatedUser);
+
+        res.json(createdItem); 
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
+});
 
 router.get('/item-detail/:itemId', (req, res, next) => {
 
@@ -66,7 +73,7 @@ router.get('/item-detail/:itemId', (req, res, next) => {
 
 })
 
-router.post('/item-update/:itemId', isAuthenticated, (req, res, next) => {
+router.post('/item-update/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
 
     const { itemId } = req.params
 
@@ -91,7 +98,7 @@ router.post('/item-update/:itemId', isAuthenticated, (req, res, next) => {
 
 })
 
-router.post('/delete-item/:itemId', isAuthenticated, (req, res, next) => {
+router.post('/delete-item/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
 
     const { itemId } = req.params
 

@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 
 const Cart = require("../models/Cart");
+const User = require("../models/User");
 
 const isAuthenticated = require("../middleware/isAuthenticated");
 
@@ -23,32 +24,47 @@ router.get("/", isAuthenticated, (req, res, next) => {
         });
 });
 
-router.post("/create", isAuthenticated, (req, res, next) => {
-  const { itemId, subtotal, total } = req.body;
+router.post("/create", isAuthenticated, async (req, res, next) => {
+  try {
+    const details = req.body;
+    console.log("Item:", details);
 
-  console.log("ItemId:", itemId);
+    const createdCart = await Cart.create({
+      owner: req.user._id,
+      subtotal: details.cost,
+      total: Math.floor(details.cost * 1.08),
 
-  const today = new Date();
-  let expiry = today.setDate(today.getDate() + 1);
-
-  Cart.create({
-    owner: req.user._id,
-    subtotal,
-    total,
-    timeLeft: expiry,
-  })
-    .then((createdCart) => {
-      createdCart.items.push(itemId);
-      createdCart.save().then(() => res.json(createdCart));
-    })
-    .catch((err) => {
-      console.log(err);
-      next(err);
     });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $push: { cart: createdCart._id }, 
+      },
+      { new: true }
+    );
+
+    const populatedUser = await updatedUser.populate({
+      path: 'cart', 
+      // populate: {path: 'items owner'}
+    })
+
+    createdCart.items.push(details._id);
+    createdCart.save();
+
+    const populatedCart = await createdCart.populate('items')
+
+    console.log("Created cart:", populatedCart);
+    console.log("Updated user:", populatedUser);
+    res.json({createdCart, populatedUser});
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
 });
 
 router.post("/update", isAuthenticated, (req, res, next) => {
-  const { itemId, subtotal, total } = req.body;
+  const details = req.body;
 
   const cartId = req.user.cart;
 
@@ -57,9 +73,9 @@ router.post("/update", isAuthenticated, (req, res, next) => {
     {
       subtotal,
       total,
-      $push: { items: itemId },
+      $push: { items: details._id },
     },
-    { return: true }
+    { new: true }
   )
     .populate("items")
     .then((updatedCart) => {
