@@ -27,6 +27,7 @@ router.get("/", isAuthenticated, (req, res, next) => {
   });
 
 router.post("/create", isAuthenticated, async (req, res, next) => {
+  console.log("Req body ===>", req.body)
   try {
     const details = req.body.details;
     console.log("Item:", details);
@@ -79,8 +80,11 @@ router.post('/update', isAuthenticated, async (req, res, next) => {
 })
 
 router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
-  const cartId = req.user.cart;
-  const { itemId } = req.params;
+  const { itemId } = req.params;  
+  const cartId = Object.keys(req.body)[0]
+
+  console.log("Cart ID:", cartId);
+  console.log("Req body:", req.body);
 
   Cart.findByIdAndUpdate(
     cartId,
@@ -91,6 +95,22 @@ router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
   )
     .populate("items")
     .then((updatedCart) => {
+      console.log("updatedCart:", updatedCart)
+      if(!updatedCart.items.length){
+        Cart.findByIdAndDelete(cartId)
+        .then((deletedCart) => {
+            if (deletedCart) {
+              console.log("Deleted cart ===>",deletedCart)
+                res.json(deletedCart);
+            } else {
+                res.status(404).json({ message: 'Item not found' });
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            next(err);
+        });
+      }
       res.json(updatedCart);
     })
     .catch((err) => {
@@ -98,5 +118,60 @@ router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
       next(err);
     });
 });
+
+
+router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) => {
+
+  try {
+
+      const { itemId } = req.params;
+      const cartId = Object.keys(req.body)[0]
+
+      const thisCart = await Cart.findById(cartId)
+      const populated = await thisCart.populate("items")
+
+      const itemsArray = populated.items
+
+      const thisIndex =  itemsArray.findIndex((element) => element._id.toString() === itemId)
+      const thisItem = itemsArray.find((element) => element._id.toString() === itemId)
+      console.log("This index ===>",thisIndex)
+      console.log("This item ===>",thisItem)
+
+      itemsArray.splice(thisIndex, 1)
+
+      populated.subtotal -= thisItem.cost
+      populated.total = populated.subtotal * 1.08
+
+      populated.items = itemsArray
+
+
+      const newCart = await populated.save()
+
+      console.log("New cart ====>", newCart)
+
+      if(!newCart.items.length){
+        Cart.findByIdAndDelete(cartId)
+        .then((deletedCart) => {
+            if (deletedCart) {
+              console.log("Deleted cart ===>",deletedCart)
+                res.json(deletedCart);
+            } else {
+                res.status(404).json({ message: 'Item not found' });
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            next(err);
+        });
+      }
+
+      res.json(newCart)
+
+
+  } catch (err) {
+      console.log(err)
+      res.json(err)
+      next(err)
+  }})
 
 module.exports = router;

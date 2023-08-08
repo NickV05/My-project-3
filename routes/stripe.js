@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 const isAuthenticated = require('../middleware/isAuthenticated');
+const Cart = require("../models/Cart");
 
 router.post('/create-checkout-session/:cartId', isAuthenticated, async (req, res, next) => {
     try {
         const ourCart = req.body;
         console.log("our cart in stripe:", ourCart);
+        console.log("req user:", req.user);
         const lineItems = await Promise.all(
             Object.values(ourCart).map(async(item )=> {
                 console.log("item:", item)
@@ -34,6 +36,18 @@ router.post('/create-checkout-session/:cartId', isAuthenticated, async (req, res
         });
         console.log("Session Id:", session.id);
         res.json({ url:session.url });
+        const deleteCart  = await Cart.findOneAndDelete({  owner: req.user._id })
+        .then((deletedItem) => {
+            if (deletedItem) {
+                res.json(deletedItem);
+            } else {
+                res.status(404).json({ message: 'Item not found' });
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            next(err);
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
