@@ -140,8 +140,8 @@ router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) =>
       itemsArray.splice(thisIndex, 1)
 
       populated.subtotal -= thisItem.cost
-      populated.total = populated.subtotal * 1.08
-
+      populated.total = Math.floor(populated.subtotal * 1.08
+)
       populated.items = itemsArray
 
 
