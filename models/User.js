@@ -12,7 +12,10 @@ const userSchema = new Schema(
     fullName: String,
     location: String,
     username: String,
-    cart: {type: Schema.Types.ObjectId, ref: 'Cart'},
+    image:{
+        type:String,
+        default:'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691526692/project3/avatar_h1b0st.jpg'
+    },
     listedItems: [{type: Schema.Types.ObjectId, ref: 'Item'}]
     },
     {

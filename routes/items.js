@@ -25,13 +25,14 @@ router.get('/', (req, res, next) => {
 
 router.post('/new-item', isAuthenticated, async (req, res, next) => {
     try {
-        const { cost, description, name } = req.body;
+        const { cost, description, name, image } = req.body;
 
         const createdItem = await Item.create({
             owner: req.user._id,
             cost,
             description,
-            name
+            name,
+            image
         });
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -77,14 +78,15 @@ router.post('/item-update/:itemId', isAuthenticated, isItemOwner, (req, res, nex
 
     const { itemId } = req.params
 
-    const { cost, description, name } = req.body
+    const { cost, description, name, image } = req.body
 
     Item.findByIdAndUpdate(
         itemId,
         {
             cost, 
             description,
-            name  
+            name, 
+            image 
         },
         { new: true}
     )

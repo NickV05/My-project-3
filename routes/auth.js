@@ -46,9 +46,9 @@ router.post("/signup", (req, res, next) => {
       User.create({ email, password: hashedPassword, fullName, location, username })
         .then((createdUser) => {
 
-          const { email, _id, fullName, location, username, cart } = createdUser;
+          const { email, _id, fullName, location, username } = createdUser;
 
-          const payload = { email, _id, fullName, location, username, cart };
+          const payload = { email, _id, fullName, location, username };
 
           const authToken = jwt.sign(payload, process.env.SECRET, {
             algorithm: "HS256",

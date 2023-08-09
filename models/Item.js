@@ -5,7 +5,10 @@ const itemSchema = new Schema(
         owner: {type: Schema.Types.ObjectId, ref: 'User'},
         cost:String,
         name:String,
-        image: String,
+        image: {
+            type:String,
+            default:'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691526882/project3/noImg_uga9rb.jpg'
+        },
         description: String,
         comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}]
     },
