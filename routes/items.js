@@ -33,7 +33,7 @@ router.post('/new-item', isAuthenticated, async (req, res, next) => {
                 cost,
                 description,
                 name,
-                image
+                image: req.body.image || 'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691683955/project3/zemaik7ovkmwmc49kqbb.png'
             });
 
 

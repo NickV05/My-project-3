@@ -7,13 +7,13 @@ const itemSchema = new Schema(
         name:String,
         image: {
             type:String,
-            default:'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691526882/project3/noImg_uga9rb.jpg'
+            default:'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691683955/project3/zemaik7ovkmwmc49kqbb.png'
         },
         description: String,
         comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}]
     },
     {
-        timeseries: true
+        timestamps:true
     }
 )
 
