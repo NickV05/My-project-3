@@ -14,7 +14,7 @@ const userSchema = new Schema(
     username: String,
     image:{
         type:String,
-        default:'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691526692/project3/avatar_h1b0st.jpg'
+        default:'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691683935/project3/img_guywp0.png'
     },
     listedItems: [{type: Schema.Types.ObjectId, ref: 'Item'}]
     },

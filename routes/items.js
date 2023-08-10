@@ -27,13 +27,16 @@ router.post('/new-item', isAuthenticated, async (req, res, next) => {
     try {
         const { cost, description, name, image } = req.body;
 
+        
         const createdItem = await Item.create({
-            owner: req.user._id,
-            cost,
-            description,
-            name,
-            image
-        });
+                owner: req.user._id,
+                cost,
+                description,
+                name,
+                image
+            });
+
+
 
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
