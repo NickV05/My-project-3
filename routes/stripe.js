@@ -13,12 +13,12 @@ router.post('/create-checkout-session/:cartId', isAuthenticated, async (req, res
             Object.values(ourCart).map(async(item )=> {
                 console.log("item:", item)
                 const product = await stripe.products.create({
-                    name: `${item.name}`,
+                    name: `${item.name} (with taxes)`,
                   });
                   console.log("Product:", product)
     
                   const price = await stripe.prices.create({
-                    unit_amount: Number(item.cost) * 100,
+                    unit_amount: Number(item.cost) * 108,
                     currency: 'usd',
                     product: `${product.id}`,
                   });
