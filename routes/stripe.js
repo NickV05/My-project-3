@@ -16,9 +16,10 @@ router.post('/create-checkout-session/:cartId', isAuthenticated, async (req, res
                     name: `${item.name} (with taxes)`,
                   });
                   console.log("Product:", product)
+                  console.log("Price",(Number(item.cost) * 108).toFixed(0))
     
                   const price = await stripe.prices.create({
-                    unit_amount: Number(item.cost) * 108,
+                    unit_amount: (Number(item.cost) * 108).toFixed(0),
                     currency: 'usd',
                     product: `${product.id}`,
                   });

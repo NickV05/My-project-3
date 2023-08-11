@@ -43,7 +43,7 @@ router.post("/signup", (req, res, next) => {
       const salt = bcrypt.genSaltSync(saltRounds);
       const hashedPassword = bcrypt.hashSync(password, salt);
 
-      User.create({ email, password: hashedPassword, fullName, location, username })
+      User.create({ email, password: hashedPassword, fullName, location, username, image:"https://res.cloudinary.com/dyto7dlgt/image/upload/v1691526692/project3/avatar_h1b0st.jpg" })
         .then((createdUser) => {
 
           const { email, _id, fullName, location, username } = createdUser;
