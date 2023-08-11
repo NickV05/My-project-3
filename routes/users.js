@@ -30,9 +30,9 @@ router.post('/user-update/:userId', isAuthenticated, isProfileOwner, (req, res, 
   .populate('listedItems')
   .then((updatedUser) => {
     console.log("updatedUser====>",updatedUser)
-    const { _id, email, fullName, location, image, listedItems } = updatedUser;
+    const { _id, email, fullName, location, image, listedItems, username } = updatedUser;
 
-    const payload = { _id, email, fullName, location, image, listedItems };
+    const payload = { _id, email, fullName, location, image, listedItems, username };
 
     const authToken = jwt.sign( 
       payload,
