@@ -32,26 +32,30 @@ router.post('/create-checkout-session/:cartId', isAuthenticated, async (req, res
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
-            success_url: `${process.env.CLIENT_URI}/`,
-            cancel_url: `${process.env.CLIENT_URI}/`,
+            success_url: `${process.env.CLIENT_URI}/success`,
+            cancel_url: `${process.env.CLIENT_URI}/cancel`,
         });
         console.log("Session Id:", session.id);
         res.json({ url:session.url });
-        const deleteCart  = await Cart.findOneAndDelete({  owner: req.user._id })
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/delete-cart', isAuthenticated, async (req,res,next) => {
+    const deleteCart  = await Cart.findOneAndDelete({  owner: req.user._id })
         .then((deletedItem) => {
+            console.log("IT WORKS")
             if (deletedItem) {
-                res.json(deletedItem);
+                res.json(deleteCart);
             } else {
-                res.status(404).json({ message: 'Item not found' });
+                res.status(404).json({ message: 'Cart not found' });
             }
         })
         .catch((err) => {
             console.log(err);
             next(err);
         });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+})
 
 module.exports = router;
