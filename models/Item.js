@@ -9,6 +9,7 @@ const itemSchema = new Schema(
             type:String,
             default:'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691683955/project3/zemaik7ovkmwmc49kqbb.png'
         },
+        category: String,
         description: String,
         comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}]
     },

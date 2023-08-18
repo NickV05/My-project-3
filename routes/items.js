@@ -25,7 +25,7 @@ router.get('/', (req, res, next) => {
 
 router.post('/new-item', isAuthenticated, async (req, res, next) => {
     try {
-        const { cost, description, name, image } = req.body;
+        const { cost, description, name, image, category } = req.body;
 
         
         const createdItem = await Item.create({
@@ -33,7 +33,8 @@ router.post('/new-item', isAuthenticated, async (req, res, next) => {
                 cost,
                 description,
                 name,
-                image: req.body.image || 'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691683955/project3/zemaik7ovkmwmc49kqbb.png'
+                category,
+                image: image || 'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691683955/project3/zemaik7ovkmwmc49kqbb.png'
             });
 
 
@@ -81,7 +82,7 @@ router.post('/item-update/:itemId', isAuthenticated, isItemOwner, (req, res, nex
 
     const { itemId } = req.params
 
-    const { cost, description, name, image } = req.body
+    const { cost, description, name, image, category } = req.body
 
     Item.findByIdAndUpdate(
         itemId,
@@ -89,7 +90,8 @@ router.post('/item-update/:itemId', isAuthenticated, isItemOwner, (req, res, nex
             cost, 
             description,
             name, 
-            image 
+            image,
+            category 
         },
         { new: true}
     )
