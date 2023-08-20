@@ -16,10 +16,13 @@ const userSchema = new Schema(
         type:String,
         default:'https://res.cloudinary.com/dyto7dlgt/image/upload/v1691526692/project3/avatar_h1b0st.jpg'
     },
-    listedItems: [{type: Schema.Types.ObjectId, ref: 'Item'}]
+    listedItems: [{type: Schema.Types.ObjectId, ref: 'Item'}],
+    follow: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    followers: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    conversations: [{type: Schema.Types.ObjectId, ref: 'Conversation'}]
     },
     {
-        timeseries: true
+        timestamps:true
     }
   );
   

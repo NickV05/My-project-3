@@ -30,9 +30,9 @@ router.post('/user-update/:userId', isAuthenticated, isProfileOwner, (req, res, 
   .populate('listedItems')
   .then((updatedUser) => {
     console.log("updatedUser====>",updatedUser)
-    const { _id, email, fullName, location, image, listedItems, username } = updatedUser;
+    const { _id, email, fullName, location, image, listedItems, username, follow, followers, conversations } = updatedUser;
 
-    const payload = { _id, email, fullName, location, image, listedItems, username };
+    const payload = { _id, email, fullName, location, image, listedItems, username, follow, followers, conversations };
 
     const authToken = jwt.sign( 
       payload,
@@ -84,6 +84,33 @@ router.post('/imageUpload', fileUploader.single("image"), (req, res, next) => {
   console.log("this is file", req.file)
   res.json({ image: req.file.path });
   
+})
+
+router.post(`/follow/:userProfileId`,isAuthenticated, async (req,res,next) => {
+  try{
+    const { userProfileId } = req.params
+    console.log("userProfileId", userProfileId)
+    const toBeFollowed = await User.findByIdAndUpdate(userProfileId,
+      {
+        $push: { followers: req.user._id }
+    },
+    { new: true }
+      );
+
+    const toFollow = await User.findByIdAndUpdate(req.user._id,
+      {
+        $push: {follow:userProfileId}
+      },
+      {new:true})
+
+      console.log("toBeFollowed:", toBeFollowed);
+      console.log("toFollow:", toFollow);
+      res.json(toFollow); 
+  }
+  catch (err) {
+    console.error(err);
+    next(err);
+}
 })
 
 module.exports = router;
