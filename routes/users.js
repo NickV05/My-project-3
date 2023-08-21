@@ -97,6 +97,8 @@ router.post(`/follow/:userProfileId`,isAuthenticated, async (req,res,next) => {
     { new: true }
       );
 
+      toBeFollowed.populate('listedItems')
+
     const toFollow = await User.findByIdAndUpdate(req.user._id,
       {
         $push: {follow:userProfileId}
@@ -105,7 +107,36 @@ router.post(`/follow/:userProfileId`,isAuthenticated, async (req,res,next) => {
 
       console.log("toBeFollowed:", toBeFollowed);
       console.log("toFollow:", toFollow);
-      res.json(toFollow); 
+      res.json(toBeFollowed); 
+  }
+  catch (err) {
+    console.error(err);
+    next(err);
+}
+})
+
+router.post(`/unfollow/:userProfileId`,isAuthenticated, async (req,res,next) => {
+  try{
+    const { userProfileId } = req.params
+    console.log("userProfileId", userProfileId)
+    const toBeUnFollowed = await User.findByIdAndUpdate(userProfileId,
+      {
+        $pull: { followers: req.user._id }
+    },
+    { new: true }
+      );
+
+      toBeUnFollowed.populate('listedItems')
+
+    const toUnFollow = await User.findByIdAndUpdate(req.user._id,
+      {
+        $pull: {follow:userProfileId}
+      },
+      {new:true})
+
+      console.log("toBeUnFollowed:", toBeUnFollowed);
+      console.log("toUnFollow:", toUnFollow);
+      res.json(toBeUnFollowed); 
   }
   catch (err) {
     console.error(err);
