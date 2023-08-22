@@ -177,10 +177,12 @@ router.get(`/get-convo/:userId`,isAuthenticated, async (req, res, next) => {
   .populate({
     path: 'message',
     populate: {
-    path: 'creator',
-    model: 'User'  
+        path: 'creator',
+        model: 'User'
     }
-  })
+})
+.populate('userTwo')
+.populate('userOne');
   console.log("CONVO ===>", convo);
   console.log("myUser===>", myUser);
   if(convo || myUser){
@@ -212,14 +214,7 @@ router.post(`/send-message/:userId`, isAuthenticated, async (req, res, next) => 
         { userOne: req.user._id, userTwo: userId },
         { userOne: userId, userTwo: req.user._id }
       ]
-    }).populate({
-      path: 'message',
-      populate: {
-      path: 'creator',
-      model: 'User'
-      }
-    });
-
+    })
     if (foundConvo) {
       const updatedConvo = await Conversation.findByIdAndUpdate(
         foundConvo._id,
@@ -233,7 +228,9 @@ router.post(`/send-message/:userId`, isAuthenticated, async (req, res, next) => 
         path: 'creator',
         model: 'User'  
         }
-      });
+      })
+      .populate('userTwo')
+      .populate('userOne');
 
       const updatedUserOne = await User.findByIdAndUpdate(req.user._id)
       .populate({
@@ -260,7 +257,7 @@ router.post(`/send-message/:userId`, isAuthenticated, async (req, res, next) => 
           user: updatedUserOne
         };
         console.log("Updated user 1 ===>",updatedUserOne)
-        console.log("Created Convo", updatedConvo);
+        console.log("Updted Convo", updatedConvo);
         res.json(responseObj);
       }
     } else {
