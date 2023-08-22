@@ -46,9 +46,9 @@ router.post("/signup", (req, res, next) => {
       User.create({ email, password: hashedPassword, fullName, location, username, image:"https://res.cloudinary.com/dyto7dlgt/image/upload/v1691526692/project3/avatar_h1b0st.jpg" })
         .then((createdUser) => {
 
-          const { email, _id, fullName, location, username } = createdUser;
+          const { email, _id, fullName, location, username, conversations, listedItems, image } = createdUser;
 
-          const payload = { email, _id, fullName, location, username };
+          const payload = { email, _id, fullName, location, username, conversations, listedItems, image };
 
           const authToken = jwt.sign(payload, process.env.SECRET, {
             algorithm: "HS256",
@@ -88,9 +88,9 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
 
-        const { email, _id, fullName, location, username, cart} = foundUser;
+        const { email, _id, fullName, location, username, image, listedItems, conversations} = foundUser;
 
-        const payload = { email, _id, fullName, location, username, cart };
+        const payload = { email, _id, fullName, location, username, image, listedItems, conversations };
 
         const authToken = jwt.sign(payload, process.env.SECRET, {
           algorithm: "HS256",

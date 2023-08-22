@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const User = require('../models/User');
 const isAuthenticated = require('../middleware/isAuthenticated');
 const isProfileOwner = require('../middleware/isProfileOwner');
-const fileUploader = require("../middleware/cloudinary")
+const fileUploader = require("../middleware/cloudinary");
+const Conversation = require('../models/Conversation');
+const Message = require('../models/Message');
 
 router.get('/user-detail/:userId', (req, res, next) => {
 
@@ -143,5 +145,119 @@ router.post(`/unfollow/:userProfileId`,isAuthenticated, async (req,res,next) => 
     next(err);
 }
 })
+
+router.get(`/get-convo/:userId`,isAuthenticated, (req, res, next) => {
+  const { userId } = req.params
+  console.log("Getting conversation");
+
+  Conversation.findOne({
+    $or: [
+      { userOne: req.user._id, userTwo: userId },
+      { userOne: userId, userTwo: req.user._id}
+    ]
+  })
+  .populate({
+    path: 'message',
+    populate: {
+    path: 'creator',
+    model: 'User'  
+    }
+  })
+          .then((foundConvo) => {
+              console.log("Found convo ===>", foundConvo)
+              res.json(foundConvo)
+          })
+          .catch((err) => {
+              console.log(err)
+              next(err)
+          })
+})
+
+router.post(`/send-message/:userId`, isAuthenticated, async (req, res, next) => {
+  const { userId } = req.params;
+  const { message } = req.body;
+
+  try {
+    console.log("Received message", message);
+
+    const createdMessage = await Message.create({
+      creator: req.user._id,
+      text: message,
+      image: null,
+      read: false
+    });
+
+    const foundConvo = await Conversation.findOne({
+      $or: [
+        { userOne: req.user._id, userTwo: userId },
+        { userOne: userId, userTwo: req.user._id }
+      ]
+    }).populate({
+      path: 'message',
+      populate: {
+      path: 'creator',
+      model: 'User'
+      }
+    });
+
+    if (foundConvo) {
+      const updatedConvo = await Conversation.findByIdAndUpdate(
+        foundConvo._id,
+        {
+          $push: { message: createdMessage._id }
+        },
+        { new: true }
+      ).populate({
+        path: 'message',
+        populate: {
+        path: 'creator',
+        model: 'User'  
+        }
+      });
+
+      if (updatedConvo) {
+        console.log("Updated Convo", updatedConvo);
+        res.json(updatedConvo);
+      }
+    } else {
+
+      const createdConvo = await Conversation.create({
+        message: createdMessage._id,
+        userOne: req.user._id,
+        userTwo: userId
+      });
+      
+      const updatedUserOne = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+          $push: { conversations: createdConvo._id }
+        },
+        { new: true });
+
+      const updatedUserTwo = await User.findByIdAndUpdate(
+        userId,
+          {
+            $push: { conversations:createdConvo._id }
+          },
+          { new: true });
+
+          
+
+      const populatedConvo = await createdConvo.populate('message')
+
+      const responseObj = {
+        convo: populatedConvo,
+        user: updatedUserOne
+      };
+      console.log("Updated user 1 ===>",updatedUserOne)
+      console.log("Updated user 2 ===>",updatedUserTwo)
+      console.log("Created Convo", populatedConvo);
+      res.json(responseObj);
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 module.exports = router;
