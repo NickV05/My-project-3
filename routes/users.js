@@ -300,7 +300,15 @@ router.post(`/send-message/:userId`, isAuthenticated, async (req, res, next) => 
 
           
 
-      const populatedConvo = await createdConvo.populate('message')
+      const populatedConvo = await createdConvo.populate({
+        path: 'message',
+        populate: {
+        path: 'creator',
+        model: 'User'  
+        }
+      })
+      .populate('userTwo')
+      .populate('userOne');
 
       const responseObj = {
         convo: populatedConvo,
