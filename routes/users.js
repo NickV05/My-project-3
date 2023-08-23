@@ -273,49 +273,50 @@ router.post(`/send-message/:userId`, isAuthenticated, async (req, res, next) => 
         {
           $push: { conversations: createdConvo._id }
         },
-        { new: true }).populate({
-          path: 'conversations',
-          populate: [
-            {
-              path: 'message',
-              model: 'Message'
-            },
-            {
-              path: 'userTwo',
-              model: 'User'
-            },
-            {
-              path: 'userOne',
-              model: 'User'
-            }
-          ]
-        });
-
+        { new: true }
+      ).populate({
+        path: 'conversations',
+        populate: [
+          {
+            path: 'message',
+            model: 'Message'
+          },
+          {
+            path: 'userTwo',
+            model: 'User'
+          },
+          {
+            path: 'userOne',
+            model: 'User'
+          }
+        ]
+      });
+      
       const updatedUserTwo = await User.findByIdAndUpdate(
         userId,
-          {
-            $push: { conversations:createdConvo._id }
-          },
-          { new: true });
-
-          
-
-      const populatedConvo = await createdConvo.populate({
-        path: 'message',
-        populate: {
-        path: 'creator',
-        model: 'User'  
-        }
-      })
-      .populate('userTwo')
-      .populate('userOne');
-
+        {
+          $push: { conversations: createdConvo._id }
+        },
+        { new: true }
+      );
+      
+      const populatedConvo = await Conversation.findById(createdConvo._id)
+        .populate({
+          path: 'message',
+          populate: {
+            path: 'creator',
+            model: 'User'  
+          }
+        })
+        .populate('userTwo')
+        .populate('userOne');
+      
       const responseObj = {
         convo: populatedConvo,
         user: updatedUserOne
       };
-      console.log("Updated user 1 ===>",updatedUserOne)
-      console.log("Updated user 2 ===>",updatedUserTwo)
+      console.log("Updated user 1 ===>", updatedUserOne);
+      console.log("Updated user 2 ===>", updatedUserTwo);
       console.log("Created Convo", populatedConvo);
       res.json(responseObj);
     }
