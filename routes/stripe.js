@@ -47,7 +47,7 @@ router.get('/delete-cart', isAuthenticated, async (req,res,next) => {
         .then((deletedItem) => {
             console.log("IT WORKS")
             if (deletedItem) {
-                res.json(deleteCart);
+                res.json({message: 'Your cart is empty'})
             } else {
                 res.status(404).json({ message: 'Cart not found' });
             }

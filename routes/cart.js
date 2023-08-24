@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 
 const Cart = require("../models/Cart");
+const Item = require("../models/Item")
 
 const isAuthenticated = require("../middleware/isAuthenticated");
 
@@ -119,6 +120,38 @@ router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
     });
 });
 
+router.post("/increase-item/:itemId", isAuthenticated, async(req, res, next) => {
+
+  try {
+    const { itemId } = req.params;
+    const cartId = Object.keys(req.body)[0];
+
+    const thisItem = await Item.findById(itemId)
+
+    const thisCart = await Cart.findByIdAndUpdate(
+      cartId,
+      {
+        $push: { items: itemId },
+      },
+      { new: true }
+    ).populate("items");
+
+    
+    const cost = parseFloat(thisItem.cost);
+
+    thisCart.subtotal += cost;
+    thisCart.total = Math.floor(thisCart.subtotal * 1.08);
+
+    const newCart = await thisCart.save();
+    console.log("New cart ====>", newCart);
+    res.json(newCart);
+
+  } catch (err) {
+    console.log(err);
+    res.json(err);
+    next(err);
+  }
+})
 
 router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) => {
 
@@ -128,7 +161,7 @@ router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) =>
       const cartId = Object.keys(req.body)[0]
 
       const thisCart = await Cart.findById(cartId)
-      const populated = await thisCart.populate("items")
+      const populated = await thisCart.populate("items");
 
       const itemsArray = populated.items
 
@@ -139,9 +172,10 @@ router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) =>
 
       itemsArray.splice(thisIndex, 1)
 
+      
+
       populated.subtotal -= thisItem.cost
-      populated.total = Math.floor(populated.subtotal * 1.08
-)
+      populated.total = Math.floor(populated.subtotal * 1.08)
       populated.items = itemsArray
 
 
