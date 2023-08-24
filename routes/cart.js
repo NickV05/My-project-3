@@ -212,7 +212,7 @@ router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) =>
         .then((deletedCart) => {
             if (deletedCart) {
               console.log("Deleted cart ===>",deletedCart)
-                res.json(deletedCart);
+                res.json(null);
             } else {
                 res.status(404).json({ message: 'Item not found' });
             }
@@ -223,7 +223,7 @@ router.post("/decrease-item/:itemId", isAuthenticated, async (req, res, next) =>
         });
       }
 
-      res.json(newCart)
+      else{res.json(newCart)}
 
 
   } catch (err) {
