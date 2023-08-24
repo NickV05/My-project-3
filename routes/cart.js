@@ -102,7 +102,7 @@ router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
         .then((deletedCart) => {
             if (deletedCart) {
               console.log("Deleted cart ===>",deletedCart)
-                res.json(deletedCart);
+                res.json(null);
             } else {
                 res.status(404).json({ message: 'Item not found' });
             }
@@ -112,7 +112,31 @@ router.post("/remove-item/:itemId", isAuthenticated, (req, res, next) => {
             next(err);
         });
       }
-      res.json(updatedCart);
+      else{
+        const newSubtotal = updatedCart.items.reduce((acc, item) => {
+          return acc + parseFloat(item.cost);
+        }, 0);
+
+        const newTotal = Math.floor(newSubtotal * 1.08);
+
+        Cart.findByIdAndUpdate(
+          cartId,
+          {
+            subtotal:newSubtotal,
+            total:newTotal,
+          },
+          { new: true }
+        ).populate('items')
+        .then((newCart) => {
+          console.log("newCart ===>", newCart)
+          res.json(newCart);
+        })
+        .catch((err) => {
+          console.log(err);
+          next(err);
+        });
+
+      }
     })
     .catch((err) => {
       console.log(err);
